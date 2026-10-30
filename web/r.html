@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F5F5F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
+<title>LocalDrop · 接收文件</title>
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/app.css">
+<script src="/static/util.js"></script>
+</head>
+<body class="page">
+<div class="bg-glow" aria-hidden="true"></div>
+
+<main class="rx-wrap">
+  <div class="rx-brand">
+    <img src="/static/favicon.svg" alt="" width="20" height="20">
+    <span>LocalDrop</span>
+  </div>
+
+  <!-- 加载骨架 -->
+  <section class="rx-stack" id="view-loading" aria-busy="true" aria-label="正在加载">
+    <div class="sk sk-hero"></div>
+    <div class="card sk-card">
+      <div class="sk-row"><div class="sk sk-sq"></div><div class="sk-lines"><div class="sk sk-line"></div><div class="sk sk-line"></div></div></div>
+      <div class="sk-row"><div class="sk sk-sq"></div><div class="sk-lines"><div class="sk sk-line"></div><div class="sk sk-line"></div></div></div>
+      <div class="sk-row"><div class="sk sk-sq"></div><div class="sk-lines"><div class="sk sk-line"></div><div class="sk sk-line"></div></div></div>
+    </div>
+  </section>
+
+  <!-- 主视图 -->
+  <section class="rx-stack" id="view-main" hidden>
+    <div class="rx-hero">
+      <div class="rx-hero-label">有人向你的手机投送了文件</div>
+      <div class="rx-hero-name" id="hero-name"></div>
+      <div class="rx-hero-meta" id="hero-meta"></div>
+      <span class="rx-hero-glyph" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v9.2M8.6 10l3.4 3.4L15.4 10"/><path d="M5 15.5v2A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5v-2"/></svg>
+      </span>
+    </div>
+
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <h2 class="card-title" id="files-title">文件</h2>
+          <p class="card-sub" id="files-sub"></p>
+        </div>
+      </div>
+      <div class="rx-list" id="rx-list" aria-live="polite"></div>
+    </section>
+
+    <section class="card note-card">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11.2v5M12 7.9v.2"/></svg>
+      <span id="dl-tip"></span>
+    </section>
+  </section>
+
+  <!-- 结束 / 无效 -->
+  <section class="rx-screen" id="view-ended" hidden>
+    <span class="glyph-circle tone-warn" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.7l8.7 14.7H3.3z"/><path d="M12 10.2v4M12 17.1v.2"/></svg>
+    </span>
+    <h1 class="screen-title" id="ended-title">投送已结束</h1>
+    <p class="screen-text" id="ended-text"></p>
+    <button class="btn btn-tint" id="ended-retry" type="button">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.6v4.4H15"/></svg>
+      <span>重新检查</span>
+    </button>
+  </section>
+</main>
+
+<!-- 底部操作栏 -->
+<div class="dock" id="dock" hidden>
+  <div class="dock-inner">
+    <div id="dock-progress" hidden>
+      <div class="dock-progress-line">
+        <span class="dock-progress-text" id="dock-ptext"></span>
+        <span id="dock-pmeta"></span>
+      </div>
+      <div class="progress" id="dock-progressbar" role="progressbar" aria-label="整体发送进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <i id="dock-bar"></i>
+      </div>
+    </div>
+    <div class="dock-row">
+      <a class="btn btn-primary dock-primary" id="dl-all" href="#">
+        <span class="dl-main" id="dl-main">下载</span>
+        <span class="dl-sub" id="dl-sub"></span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="/static/receive.js"></script>
+</body>
+</html>

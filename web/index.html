@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F5F5F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<title>LocalDrop · 局域网文件快传</title>
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/app.css">
+<script src="/static/util.js"></script>
+</head>
+<body class="page">
+<div class="bg-glow" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <img class="brand-logo" src="/static/favicon.svg" alt="" width="28" height="28">
+      <span class="brand-name">LocalDrop</span>
+    </div>
+    <div class="topbar-right">
+      <span class="status-pill" id="svc-status">
+        <span class="dot dot-green" id="svc-dot"></span>
+        <span class="status-text" id="svc-text">服务运行中</span>
+      </span>
+      <button class="addr-chip mono" id="addr-chip" type="button" hidden title="点击复制接收页地址"></button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- 加载骨架 -->
+  <section class="view" id="view-loading" aria-busy="true" aria-label="正在加载">
+    <div class="setup-sk">
+      <div class="sk sk-title"></div>
+      <div class="sk sk-sub"></div>
+      <div class="sk-grid2">
+        <div class="sk sk-pick"></div>
+        <div class="sk sk-pick"></div>
+      </div>
+      <div class="card sk-card">
+        <div class="sk-row">
+          <div class="sk sk-sq"></div>
+          <div class="sk-lines"><div class="sk sk-line"></div><div class="sk sk-line"></div></div>
+        </div>
+        <div class="sk-row">
+          <div class="sk sk-sq"></div>
+          <div class="sk-lines"><div class="sk sk-line"></div><div class="sk sk-line"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 设置视图 -->
+  <section class="view" id="view-setup" hidden>
+    <div class="setup-hero">
+      <h1 class="hero-title">把文件投送到手机</h1>
+      <p class="hero-sub">手机和电脑连同一个 Wi-Fi，扫码即可下载。文件由电脑直接发送，不经过云端，也不产生副本。</p>
+    </div>
+
+    <div class="pick-row">
+      <button class="pick" id="pick-files" type="button">
+        <span class="pick-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 3.5h6.8L18.5 8.7V19a1.5 1.5 0 0 1-1.5 1.5H6.5A1.5 1.5 0 0 1 5 19V5a1.5 1.5 0 0 1 1.5-1.5z"/><path d="M13 3.5v5.5h5.5"/></svg>
+        </span>
+        <span class="pick-text">
+          <span class="pick-title">选择文件</span>
+          <span class="pick-sub">可多选，支持任意类型</span>
+        </span>
+      </button>
+      <button class="pick" id="pick-folder" type="button">
+        <span class="pick-icon sym-green" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7A2.5 2.5 0 0 1 6 4.5h3.2a2 2 0 0 1 1.6.8l.9 1.2H18A2.5 2.5 0 0 1 20.5 9v8A2.5 2.5 0 0 1 18 19.5H6A2.5 2.5 0 0 1 3.5 17z"/></svg>
+        </span>
+        <span class="pick-text">
+          <span class="pick-title">选择文件夹</span>
+          <span class="pick-sub">整个目录连同子文件夹一起发送</span>
+        </span>
+      </button>
+    </div>
+
+    <p class="drop-hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v9.2M8.6 10l3.4 3.4L15.4 10"/><path d="M5 15.5v2A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5v-2"/></svg>
+      <span>也可以直接把文件或文件夹拖到这个页面</span>
+    </p>
+
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <h2 class="card-title">已选择</h2>
+          <p class="card-sub" id="sel-count">还没有选择文件</p>
+        </div>
+        <button class="btn btn-plain btn-sm" id="sel-clear" type="button" hidden>清空</button>
+      </div>
+
+      <div class="warn-strip" id="warn-strip" hidden></div>
+
+      <div class="sel-list" id="sel-list"></div>
+
+      <div class="empty" id="sel-empty">
+        <span class="empty-glyph" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 3.4L5.6 13.6h5l-1.3 7 7.6-10.2h-5z"/></svg>
+        </span>
+        <p class="empty-title">还没有选择文件</p>
+        <p class="empty-text">点上面的「选择文件」或「选择文件夹」开始</p>
+      </div>
+
+      <div class="start-wrap">
+        <span class="start-meta" id="start-summary">选择文件后即可开始</span>
+        <button class="btn btn-primary btn-xl" id="start-btn" type="button" disabled>开始共享</button>
+      </div>
+    </section>
+  </section>
+
+  <!-- 分享视图 -->
+  <section class="view" id="view-share" hidden>
+    <div class="share-grid">
+      <div class="share-col">
+        <section class="card qr-panel">
+          <div class="qr-card">
+            <img class="qr-img" id="qr-img" alt="手机扫码打开接收页" width="512" height="512">
+          </div>
+          <div class="qr-dl-wrap">
+            <a class="qr-dl" id="qr-dl" href="#" download="localdrop-qr.png">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5v10.6M7.7 11l4.3 4.3L16.3 11M5 19.4h14"/></svg>
+              <span>下载二维码</span>
+            </a>
+          </div>
+          <div class="qr-hint">
+            <p class="qr-hint-row">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5V6a2 2 0 0 1 2-2h2.5M15.5 4H18a2 2 0 0 1 2 2v2.5M20 15.5V18a2 2 0 0 1-2 2h-2.5M8.5 20H6a2 2 0 0 1-2-2v-2.5"/><path d="M4 12h16"/></svg>
+              <span>用手机浏览器扫码可直接打开接收页；微信扫码后请选择「在浏览器打开」</span>
+            </p>
+            <p class="qr-hint-row">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M4 12h16"/><path d="M12 4c2.1 2.3 2.1 13.7 0 16M12 4c-2.1 2.3-2.1 13.7 0 16"/></svg>
+              <span>若下载时被转到网盘、无法保存到本地，请换一个浏览器再试</span>
+            </p>
+          </div>
+          <div class="share-fields">
+            <div class="field">
+              <span class="field-label">接收页地址</span>
+              <div class="field-box">
+                <span class="field-value mono" id="share-url"></span>
+                <button class="copy-mini" id="copy-url" type="button" aria-label="复制接收页地址">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M6.2 15H5.5A2.5 2.5 0 0 1 3 12.5v-7A2.5 2.5 0 0 1 5.5 3h7A2.5 2.5 0 0 1 15 5.5v.7"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="field">
+              <span class="field-label">配对码</span>
+              <div>
+                <button class="code-pill" id="copy-code" type="button" title="点击复制配对码">
+                  <span id="code-text"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card status-card">
+          <div class="status-line">
+            <span class="dot dot-amber dot-pulse" id="conn-dot"></span>
+            <span id="conn-text">等待手机连接…</span>
+          </div>
+          <div class="dev-chips" id="dev-chips" hidden></div>
+        </section>
+      </div>
+
+      <div class="share-col">
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h2 class="card-title" id="files-title">文件</h2>
+              <p class="card-sub" id="files-sub"></p>
+            </div>
+            <div class="overall-meta">
+              <span id="overall-pct">0%</span>
+              <span class="meta-sep" id="overall-speed"></span>
+              <span class="meta-sep" id="overall-eta"></span>
+            </div>
+          </div>
+          <div class="files-progress">
+            <div class="progress progress-lg" id="overall-progress" role="progressbar" aria-label="整体发送进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <i id="overall-bar"></i>
+            </div>
+          </div>
+          <div class="warn-strip" id="warn-strip-share" hidden></div>
+          <div id="share-list"></div>
+          <div class="share-actions">
+            <button class="btn btn-tint" id="add-more" type="button">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5.5v13M5.5 12h13"/></svg>
+              <span>继续添加文件</span>
+            </button>
+            <button class="btn btn-tint" id="add-folder" type="button">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7A2.5 2.5 0 0 1 6 4.5h3.2a2 2 0 0 1 1.6.8l.9 1.2H18A2.5 2.5 0 0 1 20.5 9v8A2.5 2.5 0 0 1 18 19.5H6A2.5 2.5 0 0 1 3.5 17z"/><path d="M12 11.5v5M9.5 14h5"/></svg>
+              <span>添加文件夹</span>
+            </button>
+            <button class="btn btn-danger-tint" id="stop-share" type="button">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.8" y="6.8" width="10.4" height="10.4" rx="2.6"/></svg>
+              <span>停止共享</span>
+            </button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <!-- 手机端配对（手机打开管理页时） -->
+  <section class="view" id="view-pair" hidden>
+    <div class="center-card card card-pad">
+      <img class="pair-logo" src="/static/favicon.svg" alt="" width="56" height="56">
+      <h1 class="screen-title">输入配对码</h1>
+      <p class="screen-text">打开电脑上的 LocalDrop 页面，把显示的 10 位配对码填到这里。</p>
+      <input class="code-input" id="pair-input" type="text" inputmode="text" autocomplete="off"
+             autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="14"
+             placeholder="abcde fghjk" aria-label="配对码">
+      <button class="btn btn-primary btn-xl" id="pair-go" type="button" disabled>进入</button>
+    </div>
+  </section>
+
+  <!-- 无权限（非本机、无令牌） -->
+  <section class="view" id="view-denied" hidden>
+    <div class="center-card card card-pad">
+      <span class="glyph-circle tone-warn" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2.6"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>
+      </span>
+      <h1 class="screen-title">请在运行服务的电脑上打开管理界面</h1>
+      <p class="screen-text">管理界面仅限本机访问。如果确实需要在其他设备上管理，可以粘贴启动时终端里打印的管理员令牌。</p>
+      <div class="token-row">
+        <input class="token-input" id="denied-input" type="text" placeholder="管理员令牌"
+               autocomplete="off" spellcheck="false" aria-label="管理员令牌">
+        <button class="btn btn-primary" id="denied-go" type="button">使用</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- 拖拽遮罩 -->
+<div class="drop-overlay" id="drop-overlay" hidden aria-hidden="true">
+  <div class="drop-card">
+    <span class="drop-glyph" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v9.2M8.6 10l3.4 3.4L15.4 10"/><path d="M5 15.5v2A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5v-2"/></svg>
+    </span>
+    <p class="drop-title" id="drop-overlay-title">松开即可添加</p>
+    <p class="drop-sub">拖入的文件会先复制到本机临时目录，投送结束后自动删除。大视频建议用「选择文件」添加，零副本直接发送。</p>
+  </div>
+</div>
+
+<!-- 拖入读取进度 -->
+<div class="drop-progress" id="drop-progress" hidden role="status" aria-live="polite">
+  <div class="drop-progress-line"><span id="drop-progress-text"></span></div>
+  <div class="progress"><i id="drop-progress-bar"></i></div>
+</div>
+
+<!-- 浏览文件弹窗 -->
+<div class="backdrop" id="backdrop" hidden></div>
+<div class="modal" id="browse-modal" role="dialog" aria-modal="true" aria-labelledby="browse-title" hidden>
+  <div class="modal-head">
+    <h2 class="modal-title" id="browse-title">选择文件</h2>
+    <button class="icon-btn" id="browse-close" type="button" aria-label="关闭">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.6 6.6l10.8 10.8M17.4 6.6L6.6 17.4"/></svg>
+    </button>
+  </div>
+  <div class="modal-body-browse">
+    <aside class="browse-side" id="browse-side" aria-label="快捷位置"></aside>
+    <div class="browse-main">
+      <div class="crumbs" id="crumbs"></div>
+      <div class="browse-list" id="browse-list"></div>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <span class="foot-info" id="browse-info"></span>
+    <div class="foot-actions">
+      <button class="btn btn-plain" id="browse-cancel" type="button">取消</button>
+      <button class="btn btn-primary" id="browse-add" type="button" disabled>添加选中 (0)</button>
+    </div>
+  </div>
+</div>
+
+<!-- 确认弹层 -->
+<div class="modal sheet" id="confirm-sheet" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" hidden>
+  <span class="sheet-glyph warn" id="confirm-glyph" aria-hidden="true"></span>
+  <h2 class="sheet-title" id="confirm-title"></h2>
+  <p class="sheet-text" id="confirm-text"></p>
+  <div class="sheet-actions">
+    <button class="btn btn-danger btn-block" id="confirm-ok" type="button">确定</button>
+    <button class="btn btn-plain btn-block" id="confirm-cancel" type="button">取消</button>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
