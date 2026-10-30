@@ -3,9 +3,8 @@
 在电脑上跑一个单文件程序，手机扫码就能把电脑里的文件下载到手机上。不用装 App、不经过云盘、也不用先把文件复制上传一遍——同一个 Wi-Fi 下直连传输。
 
 ## 图片展示
-<img width="1255" height="820" alt="d78e2b408da94d4a6897d1532589bf93" src="https://github.com/user-attachments/assets/8be04779-6605-44cd-98f6-f1c519a16516" />
-<img width="1236" height="895" alt="535fae894ddce867c4c753c1414dd87b" src="https://github.com/user-attachments/assets/4b6ad25e-a7e7-4fa3-b9e3-c858520a41be" />
-<img width="1170" height="2532" alt="3a622611977d5472e3b489d122a75297" src="https://github.com/user-attachments/assets/6ab1e9b2-9292-4271-8679-b57c9f83c555" />
+<img width="2112" height="1356" alt="abdfcd04a4708c7403ca1e41a3d97782" src="https://github.com/user-attachments/assets/1dea05a8-0366-446f-a965-f6f0c94ee7f8" />
+<img width="1197" height="618" alt="5284c739a8ade6969e6c992d57192872" src="https://github.com/user-attachments/assets/99abdf32-a802-4216-ba31-a1003d6741ee" />
 
 
 ## 是什么
