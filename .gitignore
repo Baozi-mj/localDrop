@@ -1,0 +1,27 @@
+# ---- Build output ----
+# The binary is platform-specific (Mach-O/Linux/EXE) and reproducible from source.
+/localdrop
+/localdrop.exe
+/bin/
+/dist/
+
+# ---- Test artifacts ----
+*.test
+*.out
+coverage.html
+
+# ---- Runtime scratch ----
+# Drag-and-drop staging actually lives in the OS temp dir (os.MkdirTemp), not in
+# the repo; these entries only catch the accidental case.
+*.log
+/tmp/
+
+# ---- macOS / editor ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# ---- Personal local tool config ----
+.claude/settings.local.json
